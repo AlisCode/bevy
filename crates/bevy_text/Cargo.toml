@@ -25,4 +25,5 @@ bevy_utils = { path = "../bevy_utils", version = "0.2.1" }
 
 # other
 ab_glyph = "0.2.5"
+glyph_brush = "0.7"
 anyhow = "1.0"
