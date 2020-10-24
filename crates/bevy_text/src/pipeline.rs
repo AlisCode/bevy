@@ -8,9 +8,7 @@ use bevy_sprite::TextureAtlas;
 
 use glyph_brush_layout::FontId;
 
-use crate::{
-    error::TextError, glyph_brush::BrushAction, glyph_brush::GlyphBrush, Font, FontAtlasSet,
-};
+use crate::{error::TextError, glyph_brush::GlyphBrush, Font, FontAtlasSet, TextVertex};
 
 pub struct TextPipeline {
     pub brush: GlyphBrush,
@@ -98,7 +96,7 @@ impl TextPipeline {
         font_atlas_set_storage: &mut Assets<FontAtlasSet>,
         texture_atlases: &mut Assets<TextureAtlas>,
         textures: &mut Assets<Texture>,
-    ) -> Result<BrushAction, TextError> {
+    ) -> Result<Vec<TextVertex>, TextError> {
         self.brush
             .process_queued(font_atlas_set_storage, fonts, texture_atlases, textures)
     }

@@ -17,7 +17,7 @@ pub struct FontAtlasSet {
     font_atlases: HashMap<FontSizeKey, Vec<FontAtlas>>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GlyphAtlasInfo {
     pub texture_atlas: Handle<TextureAtlas>,
     pub glyph_index: u32,

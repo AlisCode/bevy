@@ -67,7 +67,7 @@ impl GlyphBrush {
         fonts: &Assets<Font>,
         texture_atlases: &mut Assets<TextureAtlas>,
         textures: &mut Assets<Texture>,
-    ) -> Result<BrushAction, TextError> {
+    ) -> Result<Vec<TextVertex>, TextError> {
         let mut sq = self
             .section_queue
             .lock()
@@ -108,7 +108,7 @@ impl GlyphBrush {
             .into_iter()
             .flatten()
             .collect();
-        Ok(BrushAction::Draw(vertices))
+        Ok(vertices)
     }
 
     pub fn add_font(&mut self, handle: Handle<Font>, font: FontArc) -> FontId {
@@ -120,13 +120,21 @@ impl GlyphBrush {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TextVertex {
     pub position: Vec2,
     pub atlas_info: GlyphAtlasInfo,
 }
 
-pub enum BrushAction {
-    Draw(Vec<TextVertex>),
-    Redraw,
+#[derive(Debug, Default, Clone)]
+pub struct TextVertices(Vec<TextVertex>);
+
+impl TextVertices {
+    pub fn borrow(&self) -> &Vec<TextVertex> {
+        &self.0
+    }
+
+    pub fn set(&mut self, vertices: Vec<TextVertex>) {
+        self.0 = vertices;
+    }
 }

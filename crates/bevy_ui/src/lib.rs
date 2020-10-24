@@ -40,7 +40,6 @@ pub mod stage {
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.init_resource::<FlexSurface>()
-            .add_startup_system(add_text_renderer.system())
             .add_stage_before(bevy_app::stage::POST_UPDATE, stage::UI)
             .add_system_to_stage(bevy_app::stage::PRE_UPDATE, ui_focus_system.system())
             // add these stages to front because these must run before transform update systems
@@ -54,15 +53,4 @@ impl Plugin for UiPlugin {
         let mut render_graph = resources.get_mut::<RenderGraph>().unwrap();
         render_graph.add_ui_graph(resources);
     }
-}
-
-
-pub struct TextRenderer;
-
-fn add_text_renderer(mut commands: Commands) {
-    commands
-        .spawn(())
-        .with(TextRenderer {})
-        .with(GlobalTransform::default())
-        .with(Draw::default());
 }
