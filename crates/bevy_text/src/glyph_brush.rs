@@ -85,7 +85,7 @@ impl GlyphBrush {
                             FontAtlasSet::new(handle.clone())
                         });
                     let position = glyph.glyph.position;
-                    let position = Vec2::new(position.x, position.y);
+                    let position = Vec2::new(position.x + glyph.glyph.scale.x/2., position.y - glyph.glyph.scale.y - glyph.glyph.scale.y /2. );
                     let atlas_info = font_atlas_set
                         .get_glyph_atlas_info(glyph.glyph.scale.y, glyph.glyph.id)
                         .map(|gaf| Ok(gaf))

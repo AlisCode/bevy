@@ -100,7 +100,7 @@ impl<'a> Drawable for DrawableText<'a> {
             };
 
             //let transform = Mat4::from_translation(Vec3::new(tv.position.x(), tv.position.y(), 0.));
-            let transform = Mat4::from_translation(Vec3::new(100., 100., 0.));
+            let transform = Mat4::from_translation(Vec3::new(tv.position.x(), tv.position.y(), 0.));
 
             let transform_buffer = context
                 .shared_buffers
