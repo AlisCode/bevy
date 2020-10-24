@@ -34,7 +34,9 @@ impl TextPipeline {
         size: f32,
         bounds: Size,
     ) -> Result<Vec2, TextError> {
-        let font = font_storage.get(font_handle.clone()).ok_or(TextError::NoSuchFont)?;
+        let font = font_storage
+            .get(font_handle.clone())
+            .ok_or(TextError::NoSuchFont)?;
         let font_id = self.get_or_insert_font_id(font_handle, font);
 
         let section = glyph_brush_layout::SectionText {
@@ -43,7 +45,9 @@ impl TextPipeline {
             text,
         };
 
-        let glyphs = self.brush.compute_glyphs(&[section], bounds, Vec2::new(0.,0.))?;
+        let glyphs = self
+            .brush
+            .compute_glyphs(&[section], bounds, Vec2::new(0., 0.))?;
         /*
         self.measure_brush
             .borrow_mut()
@@ -72,10 +76,10 @@ impl TextPipeline {
         bounds: Size,
         screen_position: Vec2,
     ) -> Result<(), TextError> {
-        let font = font_storage.get(font_handle.clone()).ok_or(TextError::NoSuchFont)?;
+        let font = font_storage
+            .get(font_handle.clone())
+            .ok_or(TextError::NoSuchFont)?;
         let font_id = self.get_or_insert_font_id(font_handle, font);
-
-        println!("the font id is {:?}", font_id);
 
         let section = glyph_brush_layout::SectionText {
             font_id,
@@ -84,8 +88,6 @@ impl TextPipeline {
         };
 
         self.brush.queue_text(&[section], bounds, screen_position)?;
-
-        println!("queued text");
 
         Ok(())
     }

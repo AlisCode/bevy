@@ -9,6 +9,7 @@ pub mod update;
 pub mod widget;
 
 pub use anchors::*;
+use bevy_transform::components::GlobalTransform;
 pub use flex::*;
 pub use focus::*;
 pub use margins::*;
@@ -25,8 +26,8 @@ pub mod prelude {
 }
 
 use bevy_app::prelude::*;
-use bevy_ecs::IntoQuerySystem;
-use bevy_render::render_graph::RenderGraph;
+use bevy_ecs::{Commands, IntoQuerySystem};
+use bevy_render::{prelude::Draw, render_graph::RenderGraph};
 use update::ui_z_system;
 
 #[derive(Default)]
@@ -39,6 +40,7 @@ pub mod stage {
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut AppBuilder) {
         app.init_resource::<FlexSurface>()
+            .add_startup_system(add_text_renderer.system())
             .add_stage_before(bevy_app::stage::POST_UPDATE, stage::UI)
             .add_system_to_stage(bevy_app::stage::PRE_UPDATE, ui_focus_system.system())
             // add these stages to front because these must run before transform update systems
@@ -52,4 +54,15 @@ impl Plugin for UiPlugin {
         let mut render_graph = resources.get_mut::<RenderGraph>().unwrap();
         render_graph.add_ui_graph(resources);
     }
+}
+
+
+pub struct TextRenderer;
+
+fn add_text_renderer(mut commands: Commands) {
+    commands
+        .spawn(())
+        .with(TextRenderer {})
+        .with(GlobalTransform::default())
+        .with(Draw::default());
 }

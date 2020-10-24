@@ -1,4 +1,4 @@
-use crate::{CalculatedSize, Node};
+use crate::{CalculatedSize, Node, TextRenderer};
 use bevy_asset::{Assets, Handle};
 use bevy_ecs::{Changed, Entity, Local, Query, Res, ResMut, Resource};
 use bevy_math::{Size, Vec2};
@@ -12,7 +12,7 @@ use bevy_sprite::TextureAtlas;
 use bevy_text::{
     Font, FontAtlasSet, TextDrawer, TextPipeline, TextStyle, TextVertex, TextVertices,
 };
-use bevy_transform::{prelude::GlobalTransform, components::Transform};
+use bevy_transform::{components::Transform, prelude::GlobalTransform};
 
 #[derive(Debug, Default)]
 pub struct QueuedText {
@@ -33,23 +33,22 @@ pub fn text_system(
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
     mut text_pipeline: ResMut<TextPipeline>,
     mut text_vertices: ResMut<TextVertices>,
-    mut text_query: Query<(&Text, &Transform, &mut CalculatedSize)>,
+    mut text_query: Query<(&Text, &Node, &Transform, &mut CalculatedSize)>,
 ) {
-    for (text, trans, mut size) in &mut text_query.iter() {
+    for (text, node, trans, mut size) in &mut text_query.iter() {
         /*
         if let Err(e) = text_pipeline.measure(&text.font, &fonts, &text.value, text.style.font_size, size.size) {
             println!("Error when measuring text: {:?}", e);
         }
         */
-        println!("Queing text : {}", &text.value);
         let screen_position = trans.translation;
         if let Err(e) = text_pipeline.queue_text(
             text.font.clone(),
             &fonts,
             &text.value,
             text.style.font_size,
-            size.size,
-Vec2::new(screen_position.x(), screen_position.y())
+            Size::new(500., 500.),
+            Vec2::new(screen_position.x(), screen_position.y()),
         ) {
             println!("Error when adding text to the queue: {:?}", e);
         }
@@ -76,6 +75,7 @@ pub fn draw_text_system(
     mut render_resource_bindings: ResMut<RenderResourceBindings>,
     mut asset_render_resource_bindings: ResMut<AssetRenderResourceBindings>,
     text_vertices: Res<TextVertices>,
+    mut query: Query<(&mut Draw, &TextRenderer)>,
 ) {
     let mut text_drawer = TextDrawer {
         render_resource_bindings: &mut render_resource_bindings,
@@ -84,14 +84,13 @@ pub fn draw_text_system(
         text_vertices: text_vertices.borrow(),
     };
 
-    text_drawer
-        .draw(
-            &mut Draw {
-                is_transparent: false,
-                is_visible: true,
-                render_commands: vec![],
-            },
-            &mut context,
-        )
-        .unwrap();
+    for (mut draw, _) in &mut query.iter() {
+        text_drawer
+            .draw(
+                &mut draw,
+                &mut context,
+            )
+            .unwrap();
+    }
+
 }

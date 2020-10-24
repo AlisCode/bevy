@@ -199,11 +199,18 @@ impl<'a> Drawable for TextDrawer<'a> {
         context.set_bind_groups_from_bindings(draw, &mut [self.render_resource_bindings])?;
 
         for tv in self.text_vertices {
+            let atlas_render_resource_bindings = self
+                .asset_render_resource_bindings
+                .get_mut(&tv.atlas_info.texture_atlas)
+                .unwrap();
+            context.set_bind_groups_from_bindings(draw, &mut [atlas_render_resource_bindings])?;
+
             let sprite = TextureAtlasSprite {
                 index: tv.atlas_info.glyph_index,
                 color: Color::WHITE,
             };
-            let transform = Mat4::from_translation(Vec3::new(tv.position.x(), tv.position.y(), 0.));
+            //let transform = Mat4::from_translation(Vec3::new(tv.position.x(), tv.position.y(), 0.));
+            let transform = Mat4::from_translation(Vec3::new(0.,0., 0.));
 
             let transform_buffer = context
                 .shared_buffers

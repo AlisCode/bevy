@@ -43,7 +43,6 @@ impl GlyphBrush {
             ..Default::default()
         };
         let section_glyphs = Layout::default().calculate_glyphs(&self.fonts, &geom, sections);
-        println!("generated {} glyphs", section_glyphs.len());
         Ok(section_glyphs)
     }
 
@@ -54,7 +53,6 @@ impl GlyphBrush {
         screen_position: Vec2,
     ) -> Result<(), TextError> {
         let glyphs = self.compute_glyphs(sections, bounds, screen_position)?;
-        println!("computed glyphs: {:?}", glyphs);
         let mut sq = self
             .section_queue
             .lock()
@@ -80,21 +78,25 @@ impl GlyphBrush {
             .map(|glyphs| {
                 let mut vertices = Vec::new();
                 for glyph in glyphs {
-                    println!("processing a glyph: {:?}", glyph);
                     let handle = &self.handles[glyph.font_id.0];
                     let handle_font_atlas: Handle<FontAtlasSet> = handle.as_weak();
                     let font_atlas_set = font_atlas_set_storage
-                        .get_or_insert_with(handle_font_atlas, || FontAtlasSet::default());
+                        .get_or_insert_with(handle_font_atlas, || {
+                            FontAtlasSet::new(handle.clone())
+                        });
                     let position = glyph.glyph.position;
                     let position = Vec2::new(position.x, position.y);
                     let atlas_info = font_atlas_set
                         .get_glyph_atlas_info(glyph.glyph.scale.y, glyph.glyph.id)
-                        .unwrap_or(font_atlas_set.add_glyph_to_atlas(
-                            fonts,
-                            texture_atlases,
-                            textures,
-                            glyph.glyph,
-                        )?);
+                        .map(|gaf| Ok(gaf))
+                        .unwrap_or_else(|| {
+                            font_atlas_set.add_glyph_to_atlas(
+                                fonts,
+                                texture_atlases,
+                                textures,
+                                glyph.glyph,
+                            )
+                        })?;
                     vertices.push(TextVertex {
                         position,
                         atlas_info,
@@ -106,7 +108,6 @@ impl GlyphBrush {
             .into_iter()
             .flatten()
             .collect();
-        println!("vertices : {:?}", vertices);
         Ok(BrushAction::Draw(vertices))
     }
 
