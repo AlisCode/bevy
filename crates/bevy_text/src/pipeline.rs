@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use ab_glyph::PxScale;
+use ab_glyph::{Font as ABGlyphFont, ScaleFont, PxScale};
 use bevy_asset::{Assets, Handle};
 use bevy_math::{Size, Vec2};
 use bevy_render::prelude::Texture;
@@ -31,7 +31,7 @@ impl TextPipeline {
         text: &str,
         size: f32,
         bounds: Size,
-    ) -> Result<Vec2, TextError> {
+    ) -> Result<Size, TextError> {
         let font = font_storage
             .get(font_handle.clone())
             .ok_or(TextError::NoSuchFont)?;
@@ -46,16 +46,16 @@ impl TextPipeline {
         let glyphs = self
             .brush
             .compute_glyphs(&[section], bounds, Vec2::new(0., 0.))?;
-        /*
-        self.measure_brush
-            .borrow_mut()
-            .glyph_bounds(section)
-            .map(|bounds| (bounds.width().ceil(), bounds.height().ceil()))
-            */
 
-        // todo: calculate total bounds
+        let scaled_font = font.font.as_scaled(size);
 
-        todo!()
+        let mut max_x: f32 = 0.0;
+        let mut max_y: f32 = 0.0;
+        for glyph in glyphs.iter() {
+            max_x = max_x.max(glyph.glyph.position.x + scaled_font.h_advance(glyph.glyph.id));
+            max_y = max_y.max(glyph.glyph.position.y - scaled_font.descent());
+        }
+        Ok(Size::new(max_x, max_y))
     }
 
     pub fn get_or_insert_font_id(&mut self, handle: Handle<Font>, font: &Font) -> FontId {
